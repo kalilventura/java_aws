@@ -6,6 +6,7 @@ import software.amazon.awscdk.core.StackProps;
 import software.amazon.awscdk.services.ec2.Vpc;
 
 public class VpcStack extends Stack {
+    private Vpc vpc;
     public VpcStack(final Construct scope, final String id) {
         this(scope, id, null);
     }
@@ -14,9 +15,13 @@ public class VpcStack extends Stack {
         super(scope, id, props);
 
         // The code that defines your stack goes here
-        Vpc.Builder.create(this, "Vpc01")
+        vpc = Vpc.Builder.create(this, "Vpc01")
                 .maxAzs(3)
-                
                 .build();
+    }
+
+    public Vpc getVpc()
+    {
+        return vpc;
     }
 }
