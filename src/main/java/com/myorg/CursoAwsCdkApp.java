@@ -7,9 +7,7 @@ import java.util.Arrays;
 public class CursoAwsCdkApp {
     public static void main(final String[] args) {
         App app = new App();
-
-        new CursoAwsCdkStack(app, "CursoAwsCdkStack");
-
+        new VpcStack(app, "Vpc");
         app.synth();
     }
 }
