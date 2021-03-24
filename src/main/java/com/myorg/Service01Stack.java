@@ -42,6 +42,7 @@ public class Service01Stack extends Stack {
                                         .build()))
                                 .build()
                 )
+                .publicLoadBalancer(true)
                 .build();
     }
 }
