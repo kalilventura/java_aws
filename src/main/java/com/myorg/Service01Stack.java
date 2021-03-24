@@ -1,15 +1,14 @@
 package com.myorg;
 
+import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.core.Construct;
 import software.amazon.awscdk.core.RemovalPolicy;
 import software.amazon.awscdk.core.Stack;
 import software.amazon.awscdk.core.StackProps;
-import software.amazon.awscdk.services.ecs.AwsLogDriverProps;
-import software.amazon.awscdk.services.ecs.Cluster;
-import software.amazon.awscdk.services.ecs.ContainerImage;
-import software.amazon.awscdk.services.ecs.LogDriver;
+import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedTaskImageOptions;
+import software.amazon.awscdk.services.elasticloadbalancingv2.HealthCheck;
 import software.amazon.awscdk.services.logs.LogGroup;
 
 public class Service01Stack extends Stack {
@@ -44,5 +43,13 @@ public class Service01Stack extends Stack {
                 )
                 .publicLoadBalancer(true)
                 .build();
+
+        service01.getTargetGroup().configureHealthCheck(
+                new HealthCheck.Builder()
+                        .path("actuator/health")
+                        .port("8080")
+                .healthyHttpCodes("200")
+                .build()
+        );
     }
 }
