@@ -44,7 +44,7 @@ public class Service01Stack extends Stack {
 
         service01.getTargetGroup().configureHealthCheck(
                 new HealthCheck.Builder()
-                        .path("actuator/health")
+                        .path("/actuator/health")
                         .port("8080")
                 .healthyHttpCodes("200")
                 .build()
