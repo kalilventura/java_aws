@@ -1,10 +1,8 @@
 package com.myorg;
 
 import org.jetbrains.annotations.Nullable;
-import software.amazon.awscdk.core.Construct;
-import software.amazon.awscdk.core.RemovalPolicy;
-import software.amazon.awscdk.core.Stack;
-import software.amazon.awscdk.core.StackProps;
+import software.amazon.awscdk.core.*;
+import software.amazon.awscdk.services.applicationautoscaling.EnableScalingProps;
 import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedTaskImageOptions;
@@ -51,5 +49,18 @@ public class Service01Stack extends Stack {
                 .healthyHttpCodes("200")
                 .build()
         );
+
+        ScalableTaskCount scalableTaskCount = service01.getService().autoScaleTaskCount(EnableScalingProps
+                .builder()
+                .minCapacity(2)
+                .maxCapacity(4)
+                .build());
+
+        scalableTaskCount.scaleOnCpuUtilization("Service01AutoScaling", CpuUtilizationScalingProps
+                .builder()
+                .targetUtilizationPercent(50)
+                .scaleInCooldown(Duration.seconds(60))
+                .scaleOutCooldown(Duration.seconds(60))
+                .build());
     }
 }
