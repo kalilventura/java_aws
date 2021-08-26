@@ -1,0 +1,77 @@
+buildscript {
+    ext {
+        springBootVersion = '2.5.4'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1')
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.5.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'com.palantir.docker' version '0.22.1'
+}
+
+apply plugin: 'org.springframework.boot'
+
+group = 'br.com.github.kalilventura'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '15'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.5.4'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.5.4'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.4'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.3'
+
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.53')
+    implementation 'com.amazonaws:aws-java-sdk-sns:1.12.53'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.53'
+    implementation "com.amazonaws:aws-java-sdk-sqs:1.12.53"
+    implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
+
+
+    implementation('org.springframework.integration:spring-integration-jms:5.5.3')
+    compileOnly('javax.jms:javax.jms-api:2.0.1')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
+}
+
+bootJar {
+    baseName = 'products'
+    version =  '1.7.0'
+    mainClassName = "br.com.github.kalilventura.products.ProductsApplication"
+}
+
+task unpack(type: Copy) {
+    dependsOn bootJar
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+
+docker {
+    name "${project.group}/${bootJar.baseName}"
+    tags "${bootJar.version}"
+    copySpec.from(tasks.unpack.outputs).into("dependency")
+    buildArgs(['DEPENDENCY': "dependency"])
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+test {
+    useJUnitPlatform()
+}
